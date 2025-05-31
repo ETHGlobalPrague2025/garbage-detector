@@ -18,10 +18,9 @@ class ObjectRecognizer:
         #     self.model = YOLO(model_path)
         # else:
         #     self.model = YOLO('yolov8n')
-        # self.model = load_model()
-        self.model = YOLO('yolov10s.pt')
-        # Move model to appropriate device
-        self.model = self.model.to(self.device)
+        self.model = load_model()
+        # self.model = YOLO('yolov10s.pt')
+   
         
         # Define class labels (modify these according to your model's classes)
         self.class_labels = ['cardboard', 'glass', 'metal', 'paper', 'plastic', 'trash']
@@ -124,29 +123,35 @@ class ObjectRecognizer:
                 try:
                     # Ensure frame is valid before resizing
                     if frame is not None and frame.size > 0:
-                        # Run inference on original frame
-                        results = self.model(frame)[0]
+                        # Resize frame to 300x300 for model input
+                        resized_frame = cv2.resize(frame, (300, 300))
                         
-                        # Process results
-                        for result in results.boxes.data.tolist():
-                            x1, y1, x2, y2, confidence, class_id = result
-                            class_name = results.names[int(class_id)]
-                            
-                            # Draw bounding box
-                            cv2.rectangle(display_frame, 
-                                        (int(x1), int(y1)), 
-                                        (int(x2), int(y2)), 
-                                        (0, 255, 0), 2)
-                            
-                            # Add text above the bounding box
-                            text = f"{class_name} ({confidence:.2f})"
-                            cv2.putText(display_frame, text, 
-                                      (int(x1), int(y1) - 10), 
-                                      cv2.FONT_HERSHEY_SIMPLEX, 
-                                      0.9, (0, 255, 0), 2)
-                            
-                            # Print detection
-                            print(f"Detected: {class_name} ({confidence:.2f})")
+                        # Add batch dimension
+                        resized_frame = np.expand_dims(resized_frame, axis=0)
+                        
+                        # Run inference on resized frame
+                        predictions = self.model(resized_frame)
+                        
+                        # Get the predicted class
+                        predicted_class_idx = np.argmax(predictions[0])
+                        confidence = float(predictions[0][predicted_class_idx])
+                        class_name = self.class_labels[predicted_class_idx]
+                        
+                        # Since this is a classifier, we'll show the prediction as an overlay
+                        # Draw a semi-transparent overlay
+                        overlay = display_frame.copy()
+                        cv2.rectangle(overlay, (0, 0), (frame.shape[1], 60), (0, 255, 0), -1)
+                        cv2.addWeighted(overlay, 0.3, display_frame, 0.7, 0, display_frame)
+                        
+                        # Add text with prediction
+                        text = f"Predicted: {class_name} ({confidence:.2f})"
+                        cv2.putText(display_frame, text, 
+                                  (10, 40),
+                                  cv2.FONT_HERSHEY_SIMPLEX, 
+                                  1.0, (255, 255, 255), 2)
+                        
+                        # Print detection
+                        print(f"Detected: {class_name} ({confidence:.2f})")
                     
                 except Exception as e:
                     print(f"Error processing frame: {e}")
