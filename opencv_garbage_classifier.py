@@ -2,7 +2,7 @@ import cv2
 from ultralytics import YOLO
 
 class GarbageClassifier:
-    def __init__(self, model_path='weights/yolov10s.pt'):
+    def __init__(self, model_path='best.pt'):
         self.model = YOLO(model_path)
 
         # Mapping COCO labels into your categories
@@ -81,4 +81,4 @@ class GarbageClassifier:
 # Example usage
 if __name__ == "__main__":
     gc = GarbageClassifier()
-    gc.run_video_stream(0)
+    gc.run_video_stream(2)
