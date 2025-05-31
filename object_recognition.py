@@ -137,18 +137,29 @@ class ObjectRecognizer:
                         confidence = float(predictions[0][predicted_class_idx])
                         class_name = self.class_labels[predicted_class_idx]
                         
-                        # Since this is a classifier, we'll show the prediction as an overlay
-                        # Draw a semi-transparent overlay
-                        overlay = display_frame.copy()
-                        cv2.rectangle(overlay, (0, 0), (frame.shape[1], 60), (0, 255, 0), -1)
-                        cv2.addWeighted(overlay, 0.3, display_frame, 0.7, 0, display_frame)
+                        # Calculate the center region to highlight (50% of frame dimensions)
+                        height, width = frame.shape[:2]
+                        center_w = width // 2
+                        center_h = height // 2
+                        box_w = width // 2  # 50% of width
+                        box_h = height // 2  # 50% of height
+                        x1 = center_w - box_w // 2
+                        y1 = center_h - box_h // 2
+                        x2 = center_w + box_w // 2
+                        y2 = center_h + box_h // 2
                         
-                        # Add text with prediction
-                        text = f"Predicted: {class_name} ({confidence:.2f})"
-                        cv2.putText(display_frame, text, 
-                                  (10, 40),
-                                  cv2.FONT_HERSHEY_SIMPLEX, 
-                                  1.0, (255, 255, 255), 2)
+                        # Draw bounding box around the center region
+                        cv2.rectangle(display_frame, 
+                                    (x1, y1), 
+                                    (x2, y2), 
+                                    (0, 255, 0), 2)
+                        
+                        # Draw text above the bounding box
+                        text = f"{class_name} ({confidence:.2f})"
+                        cv2.putText(display_frame, text,
+                                  (x1, y1 - 10),
+                                  cv2.FONT_HERSHEY_SIMPLEX,
+                                  0.9, (0, 255, 0), 2)
                         
                         # Print detection
                         print(f"Detected: {class_name} ({confidence:.2f})")
