@@ -17,9 +17,9 @@ class ObjectRecognizer:
         # if model_path:
         #     self.model = YOLO(model_path)
         # else:
-        #     self.model = YOLO('yolov8n')
+        #   self.model = YOLO('models/yolov8n')
+        #   self.model = YOLO('models/yolov10s.pt')   
         self.model = load_model()
-        # self.model = YOLO('yolov10s.pt')
    
         
         # Define class labels (modify these according to your model's classes)
