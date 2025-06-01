@@ -1,4 +1,4 @@
-🗑️ GarbageClassifier
+🗑️ GarbageDetector/Classifier
 
 A real-time object detection system for classifying and sorting garbage using YOLOv8 and a Jetson-based robotic platform. This project uses computer vision to detect categories like plastic, metal, and paper, and then triggers appropriate actions via servos or consumer logic.
 
