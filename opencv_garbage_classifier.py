@@ -3,7 +3,7 @@ import cv2
 from ultralytics import YOLO
 from trash_servo import TrashCom, CMDS  # Assuming this file exists and works
 import threading
-
+from jetsonConsumer import JetsonConsumer
 
 
 
@@ -19,7 +19,7 @@ class GarbageClassifier:
         self.metal_labels = ['can', 'metal']  # Example: Added 'metal'
         self.paper_labels = ['paper', 'box', 'book']
         # "rest" means all other detected objects or undetected garbage
-
+        self.consumer = JetsonConsumer()
         # --- Threading and State Variables ---
         self.latest_frame = None
         self.frame_lock = threading.Lock()
@@ -99,6 +99,7 @@ class GarbageClassifier:
             return 'metal'
         elif any(ppl in label_lower for ppl in self.paper_labels):
             return 'paper'
+        print(label_lower)
         return 'rest'  # Default category
 
     def _process_frame_logic(self, frame_to_process):
@@ -164,13 +165,11 @@ class GarbageClassifier:
                     print(
                         f"Category '{self.current_detection_category}' detected for {self.MIN_DETECTION_DURATION}s. Triggering action.")
                     if self.current_detection_category == 'plastic':
-                        self.bin.send_cmd(CMDS.PLASTIC)
+                        self.consumer.plastic()
                     elif self.current_detection_category == 'metal':
-                        self.bin.send_cmd(CMDS.METAL)
-                    elif self.current_detection_category == 'paper':
-                        self.bin.send_cmd(CMDS.PAPER)  # Assuming you have CMDS.PAPER
+                        self.consumer.metal()
                     else:  # 'rest'
-                        self.bin.send_cmd(CMDS.OTHER)
+                        self.consumer.other()
 
                     self.action_triggered_for_this_detection = True
                     action_taken_this_frame = True  # Signal that an action was taken
@@ -277,7 +276,7 @@ if __name__ == "__main__":
     #     OTHER = "OTHER_CMD"
     # CMDS = MockCMDS() # if you uncomment this block
 
-    gc = GarbageClassifier(model_path='yolov8n.pt')  # Using a generic model for testing
+    gc = GarbageClassifier(model_path='last.pt')  # Using a generic model for testing
     # If 'last.pt' is your specific model, ensure its class names are handled in classify_label
 
     # Check available cameras if source 2 is problematic
