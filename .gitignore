@@ -1,0 +1,12 @@
+# created by virtualenv automatically
+
+/bin/
+/lib/
+/runs/
+/share/
+/best.pt
+/best2.pt
+/pyvenv.cfg
+/robflow.py
+/yolov8n.pt
+.idea
