@@ -5,6 +5,7 @@ from trash_servo import TrashCom, CMDS  # Assuming this file exists and works
 import threading
 
 
+
 class GarbageClassifier:
     def __init__(self, model_path='last.pt'):
         self.model = YOLO(model_path)
