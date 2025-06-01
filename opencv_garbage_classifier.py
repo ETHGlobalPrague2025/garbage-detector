@@ -6,6 +6,7 @@ import threading
 
 
 
+
 class GarbageClassifier:
     def __init__(self, model_path='last.pt'):
         self.model = YOLO(model_path)
